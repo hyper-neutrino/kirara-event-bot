@@ -1,18 +1,18 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { Database } from "bun:sqlite";
 
-export function get() {
-    if (!existsSync("data.json")) {
-        writeFileSync("data.json", "[]", "utf-8");
-        return [];
-    }
+const db = new Database("db.sqlite");
 
-    return JSON.parse(readFileSync("data.json", "utf-8")) as string[];
+db.query(`CREATE TABLE IF NOT EXISTS ids (id VARCHAR(20) PRIMARY KEY)`).run();
+
+export function checkAndRemove(id: string) {
+    const res = db.query(`DELETE FROM ids WHERE id = $id`).all({ $id: id });
+    return !!res;
 }
 
 export function add(id: string) {
-    writeFileSync("data.json", JSON.stringify([...get(), id]), "utf-8");
+    db.query(`INSERT INTO ids VALUES ($id)`).run({ $id: id });
 }
 
 export function remove(id: string) {
-    writeFileSync("data.json", JSON.stringify(get().filter((x) => x !== id)), "utf-8");
+    db.query(`DELETE FROM ids WHERE id = $id`).run({ $id: id });
 }

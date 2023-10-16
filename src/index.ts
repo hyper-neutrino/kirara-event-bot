@@ -1,20 +1,15 @@
 import { ButtonStyle, ChannelType, ComponentType, Events, OverwriteType, PermissionsBitField, TextInputStyle } from "discord.js";
 import bot, { channel } from "./bot.ts";
 import logger from "./logger.ts";
-import { add, get, remove } from "./store.ts";
+import { add, checkAndRemove, remove } from "./store.ts";
 
 process.on("uncaughtException", (error) => logger.error(error, "uncaught @ top level"));
-
-let ids = get();
 
 bot.on(Events.MessageReactionAdd, async (reaction, user) => {
     if (!reaction.message.inGuild) return;
     if (reaction.emoji.id !== Bun.env.EMOJI) return;
 
-    if (!ids.includes(reaction.message.id)) return;
-
-    remove(reaction.message.id);
-    ids = get();
+    if (!checkAndRemove(reaction.message.id)) return;
 
     const ch = await reaction.message.guild!.channels.create({
         name: "private-channel",
@@ -125,14 +120,19 @@ bot.on(Events.MessageCreate, async (message) => {
     const id = message.content.split(" ").at(-1)!;
 
     if (message.content.startsWith("!!add")) {
-        add(id);
+        try {
+            add(id);
+        } catch (error) {
+            logger.error(error);
+            await message.reply(`${id} is already marked`).catch();
+            return;
+        }
+
         await message.reply(`added ${id}`).catch();
     } else {
         remove(id);
         await message.reply(`removed ${id}`).catch();
     }
-
-    ids = get();
 });
 
 logger.info("Kirara Event Bot is now running.");
