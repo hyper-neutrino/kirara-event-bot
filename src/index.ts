@@ -8,6 +8,7 @@ process.on("uncaughtException", (error) => logger.error(error, "uncaught @ top l
 let ids = get();
 
 bot.on(Events.MessageReactionAdd, async (reaction, user) => {
+    if (!reaction.message.inGuild) return;
     if (reaction.emoji.id !== Bun.env.EMOJI) return;
 
     if (!ids.includes(reaction.message.id)) return;
@@ -15,7 +16,7 @@ bot.on(Events.MessageReactionAdd, async (reaction, user) => {
     remove(reaction.message.id);
     ids = get();
 
-    const ch = await channel.guild.channels.create({
+    const ch = await reaction.message.guild!.channels.create({
         name: "private-channel",
         type: ChannelType.GuildText,
         permissionOverwrites: [
