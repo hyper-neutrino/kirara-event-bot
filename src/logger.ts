@@ -1,6 +1,6 @@
 import pino from "pino";
 
 const logger = pino();
-logger.level = Bun.env.LOG_LEVEL!;
+logger.level = "trace";
 
 export default logger;

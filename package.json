@@ -1,18 +1,16 @@
 {
-  "dependencies": {
-    "discord.js": "^14.13.0",
-    "pino": "^8.16.0"
-  },
-  "scripts": {
-    "start": "bun src/index.ts | pino-pretty -i hostname,pid"
-  },
-  "name": "kirara-event-bot",
-  "module": "index.ts",
-  "type": "module",
-  "devDependencies": {
-    "bun-types": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
-  }
+    "name": "kirara-event-bot",
+    "module": "index.ts",
+    "type": "module",
+    "devDependencies": {
+        "bun-types": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "discord.js": "^14.13.0",
+        "mongodb": "^6.2.0",
+        "pino": "^8.16.1"
+    }
 }
