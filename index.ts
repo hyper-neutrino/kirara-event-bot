@@ -39,11 +39,13 @@ const logs = (await bot.channels.fetch(Bun.env.LOGS!)) as TextChannel;
 bot.on(Events.MessageReactionAdd, async (reaction, user) => {
     if (!reaction.message.guild) return;
 
-    const doc = await db.messages.findOneAndUpdate({ id: reaction.message.id, remaining: { $gt: 0 } }, { $inc: { remaining: -1 } });
-    if (!doc) return;
+    if ((await db.messages.countDocuments({ id: reaction.message.id, remaining: { $gt: 0 } })) === 0) return;
 
     const findDoc = await db.finds.findOneAndUpdate({ user: user.id, message: reaction.message.id }, { $set: { user: user.id } }, { upsert: true });
     if (findDoc) return;
+
+    const doc = await db.messages.findOneAndUpdate({ id: reaction.message.id, remaining: { $gt: 0 } }, { $inc: { remaining: -1 } });
+    if (!doc) return;
 
     const userDoc = await db.users.findOneAndUpdate(
         { id: user.id },
